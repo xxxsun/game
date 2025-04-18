@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Space Impact - Koleksi Game Saya</title>
     <style>
-        body {
+        html, body {
+            height: 100%;
+            overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
             margin: 0 auto;
@@ -290,7 +292,7 @@
             function drawBullets() {
                 ctx.fillStyle = '#ffff00';
                 player.bullets.forEach(bullet => {
-                    ctx.fillmoderator.fillRect(bullet.x, bullet.y, 10, 3);
+                    ctx.fillRect(bullet.x, bullet.y, 10, 3);
                 });
             }
             
@@ -478,7 +480,7 @@
                     gameOver();
                 } else {
                     player.invulnerable = true;
-                    player.invulnerableTime = 60; // 1 second at 60fps
+                    player.invulnerableTime = 60;
                 }
             }
             
@@ -583,6 +585,7 @@
                             keys.right = true;
                             break;
                         case ' ':
+                            e.preventDefault();
                             keys.fire = true;
                             break;
                         case 'p':
@@ -607,6 +610,7 @@
                             keys.right = false;
                             break;
                         case ' ':
+                            e.preventDefault();
                             keys.fire = false;
                             break;
                     }
