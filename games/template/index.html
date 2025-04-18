@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nama Game - Koleksi Game Saya</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .back-button {
+            padding: 8px 15px;
+            background-color: #4a4fce;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .game-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .game-area {
+            min-height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: #4a4fce;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #3a3fb4;
+        }
+        
+        .game-info {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Nama Game</h1>
+        <a href="../../index.html" class="back-button">Kembali ke Menu</a>
+    </header>
+    
+    <main>
+        <div class="game-container">
+            <div class="game-area" id="gameArea">
+                <!-- Game akan ditampilkan di sini -->
+                <p>Game akan dimuat di sini</p>
+            </div>
+            
+            <div class="game-controls">
+                <button id="startButton">Mulai Game</button>
+                <button id="resetButton">Reset</button>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <h2>Cara Bermain</h2>
+            <p>Jelaskan aturan dan cara bermain game Anda di sini.</p>
+            
+            <h2>Tentang Game Ini</h2>
+            <p>Deskripsikan game Anda, teknologi yang digunakan, dan proses pembuatannya.</p>
+        </div>
+    </main>
+    
+    <script>
+        // Game logic goes here
+        document.addEventListener('DOMContentLoaded', function() {
+            const gameArea = document.getElementById('gameArea');
+            const startButton = document.getElementById('startButton');
+            const resetButton = document.getElementById('resetButton');
+            
+            // Contoh sederhana inisialisasi game
+            startButton.addEventListener('click', function() {
+                gameArea.innerHTML = '<h2>Game dimulai!</h2>';
+                initGame();
+            });
+            
+            resetButton.addEventListener('click', function() {
+                gameArea.innerHTML = '<p>Game akan dimuat di sini</p>';
+            });
+            
+            function initGame() {
+                // Logika game Anda di sini
+                console.log('Game initialized!');
+            }
+        });
+    </script>
+</body>
+</html>
