@@ -292,7 +292,7 @@
             function drawBullets() {
                 ctx.fillStyle = '#ffff00';
                 player.bullets.forEach(bullet => {
-                    ctx.fillRect(bullet.x, bullet.y, 10, 3); // Perbaikan: menghapus fillmoderator
+                    ctx.fillRect(bullet.x, bullet.y, 10, 3);
                 });
             }
             
@@ -303,7 +303,7 @@
                         ctx.beginPath();
                         ctx.moveTo(enemy.x, enemy.y);
                         ctx.lineTo(enemy.x - enemy.width, enemy.y + enemy.height / 2);
-                        ctx.lineTo(enemy.x, enemy.y + enemy.height);
+                        ctx.lineTo(enemy.x, player.y + player.height);
                         ctx.closePath();
                         ctx.fill();
                     } else if (enemy.type === 'bomber') {
@@ -662,11 +662,15 @@
                 ctx.fillText('Gunakan panah/spasi (PC) atau tombol layar (mobile)', canvas.width / 2, canvas.height / 2 + 40);
             }
             
+            let startScreenAnimationId;
             function animateStartScreen() {
-                if (gameRunning) return;
+                if (gameRunning) {
+                    cancelAnimationFrame(startScreenAnimationId);
+                    return;
+                }
                 updateStars();
                 drawStartScreen();
-                requestAnimationFrame(animateStartScreen);
+                startScreenAnimationId = requestAnimationFrame(animateStartScreen);
             }
             
             // Initialize
@@ -676,18 +680,16 @@
                 setupMobileControls();
                 
                 startButton.addEventListener('click', () => {
-                    if (!gameRunning) {
-                        resetGame();
-                        startButton.textContent = 'Mulai Ulang';
-                        animationId = requestAnimationFrame(gameLoop);
-                    } else {
-                        resetGame();
-                        animationId = requestAnimationFrame(gameLoop);
-                    }
+                    console.log('Start button clicked'); // Debugging
+                    resetGame();
+                    startButton.textContent = 'Mulai Ulang';
+                    cancelAnimationFrame(startScreenAnimationId); // Hentikan start screen
+                    animationId = requestAnimationFrame(gameLoop);
                 });
                 
                 pauseButton.addEventListener('click', togglePause);
                 restartButton.addEventListener('click', () => {
+                    console.log('Restart button clicked'); // Debugging
                     resetGame();
                     animationId = requestAnimationFrame(gameLoop);
                 });
