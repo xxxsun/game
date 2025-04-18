@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tebak Angka - Koleksi Game Saya</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .back-button {
+            padding: 8px 15px;
+            background-color: #4a4fce;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .game-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .game-area {
+            min-height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .input-group {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+        
+        input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100px;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: #4a4fce;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #3a3fb4;
+        }
+        
+        .message {
+            font-size: 18px;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .wrong {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .hint {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .attempts {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .game-info {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Tebak Angka</h1>
+        <a href="../../index.html" class="back-button">Kembali ke Menu</a>
+    </header>
+    
+    <main>
+        <div class="game-container">
+            <div class="game-area" id="gameArea">
+                <h2>Selamat Datang di Game Tebak Angka!</h2>
+                <p>Saya telah memilih angka antara 1 dan 100. Bisakah kamu menebaknya?</p>
+                
+                <div class="input-group">
+                    <input type="number" id="guessInput" min="1" max="100" placeholder="?">
+                    <button id="guessButton">Tebak!</button>
+                </div>
+                
+                <div id="message" class="message" style="display: none;"></div>
+                <div id="attempts" class="attempts">Percobaan: 0</div>
+            </div>
+            
+            <div class="game-controls">
+                <button id="newGameButton">Game Baru</button>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <h2>Cara Bermain</h2>
+            <p>Komputer akan memilih angka acak antara 1 dan 100. Tugas kamu adalah menebak angka tersebut dengan jumlah percobaan sesedikit mungkin.</p>
+            <p>Setelah setiap tebakan, kamu akan mendapatkan petunjuk apakah angka yang kamu tebak terlalu tinggi atau terlalu rendah.</p>
+            
+            <h2>Tentang Game Ini</h2>
+            <p>Game sederhana ini dibuat dengan HTML, CSS, dan JavaScript murni. Ini adalah contoh dasar bagaimana membuat game interaktif untuk web.</p>
+        </div>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const guessInput = document.getElementById('guessInput');
+            const guessButton = document.getElementById('guessButton');
+            const newGameButton = document.getElementById('newGameButton');
+            const messageDiv = document.getElementById('message');
+            const attemptsDiv = document.getElementById('attempts');
+            
+            let secretNumber;
+            let attempts;
+            
+            // Inisialisasi game baru
+            function initGame() {
+                secretNumber = Math.floor(Math.random() * 100) + 1;
+                attempts = 0;
+                attemptsDiv.textContent = `Percobaan: ${attempts}`;
+                messageDiv.style.display = 'none';
+                guessInput.value = '';
+                guessInput.focus();
+                console.log('Angka rahasia: ' + secretNumber); // Untuk debugging
+            }
+            
+            // Cek tebakan
+            function checkGuess() {
+                const userGuess = parseInt(guessInput.value);
+                
+                if (isNaN(userGuess) || userGuess < 1 || userGuess > 100) {
+                    setMessage('Masukkan angka antara 1 dan 100!', 'wrong');
+                    return;
+                }
+                
+                attempts++;
+                attemptsDiv.textContent = `Percobaan: ${attempts}`;
+                
+                if (userGuess === secretNumber) {
+                    setMessage(`Selamat! Kamu berhasil menebak angka ${secretNumber} dalam ${attempts} percobaan!`, 'correct');
+                } else if (userGuess < secretNumber) {
+                    setMessage('Terlalu rendah! Coba angka yang lebih tinggi.', 'hint');
+                } else {
+                    setMessage('Terlalu tinggi! Coba angka yang lebih rendah.', 'hint');
+                }
+                
+                guessInput.value = '';
+                guessInput.focus();
+            }
+            
+            // Set pesan
+            function setMessage(text, className) {
+                messageDiv.textContent = text;
+                messageDiv.className = 'message ' + className;
+                messageDiv.style.display = 'block';
+            }
+            
+            // Event listeners
+            guessButton.addEventListener('click', checkGuess);
+            
+            guessInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkGuess();
+                }
+            });
+            
+            newGameButton.addEventListener('click', initGame);
+            
+            // Mulai game saat halaman dimuat
+            initGame();
+        });
+    </script>
+</body>
+</html>
