@@ -292,7 +292,7 @@
             function drawBullets() {
                 ctx.fillStyle = '#ffff00';
                 player.bullets.forEach(bullet => {
-                    ctx.fillRect(bullet.x, bullet.y, 10, 3);
+                    ctx.fillRect(bullet.x, bullet.y, 10, 3); // Perbaikan: menghapus fillmoderator
                 });
             }
             
