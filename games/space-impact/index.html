@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Impact - Koleksi Game Saya</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .back-button {
+            padding: 8px 15px;
+            background-color: #4a4fce;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .game-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        #gameCanvas {
+            background-color: #000033;
+            border-radius: 5px;
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+        
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: #4a4fce;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #3a3fb4;
+        }
+        
+        .mobile-controls {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .mobile-controls-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(74, 79, 206, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .fire-btn {
+            width: 80px;
+            background-color: rgba(206, 74, 74, 0.7);
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        .game-info {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-controls {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Space Impact</h1>
+        <a href="../../index.html" class="back-button">Kembali ke Menu</a>
+    </header>
+    
+    <main>
+        <div class="game-container">
+            <div class="game-stats">
+                <div>Level: <span id="levelDisplay">1</span></div>
+                <div>Skor: <span id="scoreDisplay">0</span></div>
+                <div>Nyawa: <span id="livesDisplay">3</span></div>
+            </div>
+            
+            <div style="position: relative;">
+                <canvas id="gameCanvas" width="480" height="320"></canvas>
+                <div id="gameOver" class="game-over">
+                    <h2>Game Over</h2>
+                    <p>Skor Akhir: <span id="finalScore">0</span></p>
+                    <button id="restartButton">Main Lagi</button>
+                </div>
+            </div>
+            
+            <div class="game-controls">
+                <button id="startButton">Mulai Game</button>
+                <button id="pauseButton">Jeda</button>
+            </div>
+            
+            <div class="mobile-controls">
+                <div class="mobile-controls-row">
+                    <button class="control-btn" id="upBtn">↑</button>
+                </div>
+                <div class="mobile-controls-row">
+                    <button class="control-btn" id="leftBtn">←</button>
+                    <button class="control-btn fire-btn" id="fireBtn">🔥</button>
+                    <button class="control-btn" id="rightBtn">→</button>
+                </div>
+                <div class="mobile-controls-row">
+                    <button class="control-btn" id="downBtn">↓</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <h2>Cara Bermain</h2>
+            <p><strong>Keyboard:</strong></p>
+            <ul>
+                <li>Panah Atas/Bawah/Kiri/Kanan: Mengendalikan pesawat</li>
+                <li>Spasi: Menembak</li>
+            </ul>
+            <p><strong>Mobile:</strong> Gunakan tombol kontrol di bawah layar permainan</p>
+            
+            <h2>Tentang Game Ini</h2>
+            <p>Game ini terinspirasi dari klasik Nokia "Space Impact" yang populer di tahun 2000-an. Game ini dibuat dengan HTML5 Canvas dan JavaScript.</p>
+        </div>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mendapatkan elemen canvas dan konteksnya
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Mendapatkan elemen UI
+            const startButton = document.getElementById('startButton');
+            const pauseButton = document.getElementById('pauseButton');
+            const restartButton = document.getElementById('restartButton');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const livesDisplay = document.getElementById('livesDisplay');
+            const levelDisplay = document.getElementById('levelDisplay');
+            const gameOverDisplay = document.getElementById('gameOver');
+            const finalScoreDisplay = document.getElementById('finalScore');
+            
+            // Kontrol Mobile
+            const upBtn = document.getElementById('upBtn');
+            const downBtn = document.getElementById('downBtn');
+            const leftBtn = document.getElementById('leftBtn');
+            const rightBtn = document.getElementById('rightBtn');
+            const fireBtn = document.getElementById('fireBtn');
+            
+            // Variabel game
+            let gameRunning = false;
+            let gamePaused = false;
+            let score = 0;
+            let lives = 3;
+            let level = 1;
+            let enemySpeed = 2;
+            let enemySpawnRate = 100;
+            let lastEnemySpawn = 0;
+            
+            // Posisi dan properti pemain
+            const player = {
+                x: 50,
+                y: canvas.height / 2 - 15,
+                width: 30,
+                height: 15,
+                speed: 5,
+                color: '#4a4fce',
+                bullets: [],
+                bulletSpeed: 7,
+                bulletCooldown: 15,
+                lastBulletTime: 0
+            };
+            
+            // Array untuk musuh
+            const enemies = [];
+            
+            // Status tombol keyboard
+            const keys = {
+                up: false,
+                down: false,
+                left: false,
+                right: false,
+                fire: false
+            };
+            
+            // Fungsi untuk menggambar pesawat pemain
+            function drawPlayer() {
+                ctx.fillStyle = player.color;
+                ctx.beginPath();
+                ctx.moveTo(player.x, player.y);
+                ctx.lineTo(player.x + player.width, player.y + player.height / 2);
+                ctx.lineTo(player.x, player.y + player.height);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // Fungsi untuk menggambar peluru
+            function drawBullets() {
+                ctx.fillStyle = '#ffff00';
+                player.bullets.forEach(bullet => {
+                    ctx.fillRect(bullet.x, bullet.y, 10, 3);
+                });
+            }
+            
+            // Fungsi untuk menggambar musuh
+            function drawEnemies() {
+                enemies.forEach(enemy => {
+                    ctx.fillStyle = enemy.color;
+                    if (enemy.type === 'standard') {
+                        // Musuh standar (bentuk segitiga terbalik)
+                        ctx.beginPath();
+                        ctx.moveTo(enemy.x, enemy.y);
+                        ctx.lineTo(enemy.x - enemy.width, enemy.y + enemy.height / 2);
+                        ctx.lineTo(enemy.x, enemy.y + enemy.height);
+                        ctx.closePath();
+                        ctx.fill();
+                    } else if (enemy.type === 'bomber') {
+                        // Musuh bomber (bentuk kotak)
+                        ctx.fillRect(enemy.x - enemy.width, enemy.y, enemy.width, enemy.height);
+                    } else if (enemy.type === 'boss') {
+                        // Boss (bentuk lebih besar, lebih kompleks)
+                        ctx.beginPath();
+                        ctx.moveTo(enemy.x, enemy.y);
+                        ctx.lineTo(enemy.x - enemy.width / 2, enemy.y + enemy.height / 3);
+                        ctx.lineTo(enemy.x - enemy.width, enemy.y);
+                        ctx.lineTo(enemy.x - enemy.width, enemy.y + enemy.height);
+                        ctx.lineTo(enemy.x, enemy.y + enemy.height);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                });
+            }
+            
+            // Fungsi untuk menggambar bintang latar belakang
+            const stars = [];
+            function initStars() {
+                stars.length = 0;
+                for (let i = 0; i < 50; i++) {
+                    stars.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        size: Math.random() * 2 + 1,
+                        speed: Math.random() * 2 + 1
+                    });
+                }
+            }
+            
+            function drawStars() {
+                ctx.fillStyle = '#ffffff';
+                stars.forEach(star => {
+                    ctx.fillRect(star.x, star.y, star.size, star.size);
+                });
+            }
+            
+            function updateStars() {
+                stars.forEach(star => {
+                    star.x -= star.speed;
+                    if (star.x < 0) {
+                        star.x = canvas.width;
+                        star.y = Math.random() * canvas.height;
+                    }
+                });
+            }
+            
+            // Fungsi untuk memeriksa tabrakan
+            function checkCollisions() {
+                // Cek tabrakan peluru dengan musuh
+                for (let i = player.bullets.length - 1; i >= 0; i--) {
+                    const bullet = player.bullets[i];
+                    
+                    for (let j = enemies.length - 1; j >= 0; j--) {
+                        const enemy = enemies[j];
+                        
+                        if (bullet.x < enemy.x &&
+                            bullet.x + 10 > enemy.x - enemy.width &&
+                            bullet.y > enemy.y &&
+                            bullet.y < enemy.y + enemy.height) {
+                            
+                            enemy.health--;
+                            player.bullets.splice(i, 1);
+                            
+                            if (enemy.health <= 0) {
+                                score += enemy.points;
+                                enemies.splice(j, 1);
+                                updateScore();
+                            }
+                            
+                            break;
+                        }
+                    }
+                }
+                
+                // Cek tabrakan pemain dengan musuh
+                for (let i = enemies.length - 1; i >= 0; i--) {
+                    const enemy = enemies[i];
+                    
+                    if (player.x + player.width > enemy.x - enemy.width &&
+                        player.x < enemy.x &&
+                        player.y + player.height > enemy.y &&
+                        player.y < enemy.y + enemy.height) {
+                        
+                        enemies.splice(i, 1);
+                        loseLife();
+                    }
+                }
+            }
+            
+            // Fungsi untuk kehilangan nyawa
+            function loseLife() {
+                lives--;
+                updateLives();
+                
+                if (lives <= 0) {
+                    gameOver();
+                } else {
+                    // Efek berkedip saat terkena
+                    let blinkCount = 0;
+                    const blinkInterval = setInterval(() => {
+                        player.color = blinkCount % 2 === 0 ? '#ff0000' : '#4a4fce';
+                        blinkCount++;
+                        
+                        if (blinkCount >= 6) {
+                            clearInterval(blinkInterval);
+                            player.color = '#4a4fce';
+                        }
+                    }, 200);
+                }
+            }
+            
+            // Fungsi untuk mengupdate skor
+            function updateScore() {
+                scoreDisplay.textContent = score;
+                
+                // Periksa apakah perlu naik level
+                if (score >= level * 1000) {
+                    levelUp();
+                }
+            }
+            
+            // Fungsi untuk naik level
+            function levelUp() {
+                level++;
+                levelDisplay.textContent = level;
+                enemySpeed += 0.5;
+                enemySpawnRate = Math.max(40, enemySpawnRate - 10);
+                
+                // Efek flash layar saat naik level
+                canvas.style.backgroundColor = '#ffffff';
+                setTimeout(() => {
+                    canvas.style.backgroundColor = '#000033';
+                }, 100);
+            }
+            
+            // Fungsi untuk mengupdate tampilan nyawa
+            function updateLives() {
+                livesDisplay.textContent = lives;
+            }
+            
+            // Fungsi game over
+            function gameOver() {
+                gameRunning = false;
+                finalScoreDisplay.textContent = score;
+                gameOverDisplay.style.display = 'block';
+            }
+            
+            // Fungsi untuk memulai ulang game
+            function restartGame() {
+                score = 0;
+                lives = 3;
+                level = 1;
+                enemySpeed = 2;
+                enemySpawnRate = 100;
+                enemies.length = 0;
+                player.bullets.length = 0;
+                player.x = 50;
+                player.y = canvas.height / 2 - 15;
+                
+                updateScore();
+                updateLives();
+                levelDisplay.textContent = level;
+                
+                gameOverDisplay.style.display = 'none';
+                gameRunning = true;
+                gamePaused = false;
+                
+                startGameLoop();
+            }
+            
+            // Game loop utama
+            let animationId;
+            function gameLoop() {
+                if (!gameRunning || gamePaused) {
+                    return;
+                }
+                
+                // Bersihkan canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Update dan gambar bintang
+                updateStars();
+                drawStars();
+                
+                // Update posisi pemain berdasarkan input
+                if (keys.up) {
+                    player.y = Math.max(0, player.y - player.speed);
+                }
+                if (keys.down) {
+                    player.y = Math.min(canvas.height - player.height, player.y + player.speed);
+                }
+                if (keys.left) {
+                    player.x = Math.max(0, player.x - player.speed);
+                }
+                if (keys.right) {
+                    player.x = Math.min(canvas.width - player.width, player.x + player.speed);
+                }
+                
+                // Menembak
+                if (keys.fire && player.lastBulletTime <= 0) {
+                    player.bullets.push({
+                        x: player.x + player.width,
+                        y: player.y + player.height / 2 - 1.5
+                    });
+                    player.lastBulletTime = player.bulletCooldown;
+                }
+                
+                if (player.lastBulletTime > 0) {
+                    player.lastBulletTime--;
+                }
+                
+                // Update posisi peluru
+                for (let i = player.bullets.length - 1; i >= 0; i--) {
+                    player.bullets[i].x += player.bulletSpeed;
+                    
+                    // Hapus peluru yang keluar dari layar
+                    if (player.bullets[i].x > canvas.width) {
+                        player.bullets.splice(i, 1);
+                    }
+                }
+                
+                // Kemunculan musuh
+                lastEnemySpawn++;
+                if (lastEnemySpawn >= enemySpawnRate) {
+                    const enemyType = Math.random();
+                    let newEnemy;
+                    
+                    if (enemyType < 0.1 && level > 1) {
+                        // Boss (jarang muncul)
+                        newEnemy = {
+                            x: canvas.width,
+                            y: Math.random() * (canvas.height - 40),
+                            width: 40,
+                            height: 40,
+                            speed: enemySpeed * 0.6,
+                            color: '#ff3333',
+                            health: 5,
+                            points: 100,
+                            type: 'boss'
+                        };
+                    } else if (enemyType < 0.3) {
+                        // Bomber (medium speed)
+                        newEnemy = {
+                            x: canvas.width,
+                            y: Math.random() * (canvas.height - 25),
+                            width: 25,
+                            height: 25,
+                            speed: enemySpeed * 0.8,
+                            color: '#ff9933',
+                            health: 2,
+                            points: 30,
+                            type: 'bomber'
+                        };
+                    } else {
+                        // Standard enemy (fast)
+                        newEnemy = {
+                            x: canvas.width,
+                            y: Math.random() * (canvas.height - 15),
+                            width: 20,
+                            height: 15,
+                            speed: enemySpeed * 1.2,
+                            color: '#33cc33',
+                            health: 1,
+                            points: 10,
+                            type: 'standard'
+                        };
+                    }
+                    
+                    enemies.push(newEnemy);
+                    lastEnemySpawn = 0;
+                }
+                
+                // Update posisi musuh
+                for (let i = enemies.length - 1; i >= 0; i--) {
+                    enemies[i].x -= enemies[i].speed;
+                    
+                    // Hapus musuh yang keluar dari layar
+                    if (enemies[i].x + enemies[i].width < 0) {
+                        enemies.splice(i, 1);
+                    }
+                }
+                
+                // Cek tabrakan
+                checkCollisions();
+                
+                // Gambar elemen game
+                drawPlayer();
+                drawBullets();
+                drawEnemies();
+                
+                // Lanjutkan loop
+                animationId = requestAnimationFrame(gameLoop);
+            }
+            
+            // Mulai game loop
+            function startGameLoop() {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                }
+                animationId = requestAnimationFrame(gameLoop);
+            }
+            
+            // Event listener untuk keyboard
+            window.addEventListener('keydown', (e) => {
+                if (!gameRunning) return;
+                
+                switch (e.key) {
+                    case 'ArrowUp':
+                        keys.up = true;
+                        break;
+                    case 'ArrowDown':
+                        keys.down = true;
+                        break;
+                    case 'ArrowLeft':
+                        keys.left = true;
+                        break;
+                    case 'ArrowRight':
+                        keys.right = true;
+                        break;
+                    case ' ':
+                        keys.fire = true;
+                        break;
+                    case 'p':
+                        togglePause();
+                        break;
+                }
+            });
+            
+            window.addEventListener('keyup', (e) => {
+                switch (e.key) {
+                    case 'ArrowUp':
+                        keys.up = false;
+                        break;
+                    case 'ArrowDown':
+                        keys.down = false;
+                        break;
+                    case 'ArrowLeft':
+                        keys.left = false;
+                        break;
+                    case 'ArrowRight':
+                        keys.right = false;
+                        break;
+                    case ' ':
+                        keys.fire = false;
+                        break;
+                }
+            });
+            
+            // Event listener untuk tombol kontrol mobile
+            function setupMobileControls() {
+                // Helper untuk membuat handlers touch events
+                function createTouchHandler(keyName, isDown) {
+                    return function(e) {
+                        e.preventDefault();
+                        keys[keyName] = isDown;
+                    };
+                }
+                
+                // Up button
+                upBtn.addEventListener('touchstart', createTouchHandler('up', true));
+                upBtn.addEventListener('touchend', createTouchHandler('up', false));
+                
+                // Down button
+                downBtn.addEventListener('touchstart', createTouchHandler('down', true));
+                downBtn.addEventListener('touchend', createTouchHandler('down', false));
+                
+                // Left button
+                leftBtn.addEventListener('touchstart', createTouchHandler('left', true));
+                leftBtn.addEventListener('touchend', createTouchHandler('left', false));
+                
+                // Right button
+                rightBtn.addEventListener('touchstart', createTouchHandler('right', true));
+                rightBtn.addEventListener('touchend', createTouchHandler('right', false));
+                
+                // Fire button
+                fireBtn.addEventListener('touchstart', createTouchHandler('fire', true));
+                fireBtn.addEventListener('touchend', createTouchHandler('fire', false));
+                
+                // Juga tambahkan mouse events untuk desktop testing
+                upBtn.addEventListener('mousedown', createTouchHandler('up', true));
+                upBtn.addEventListener('mouseup', createTouchHandler('up', false));
+                
+                downBtn.addEventListener('mousedown', createTouchHandler('down', true));
+                downBtn.addEventListener('mouseup', createTouchHandler('down', false));
+                
+                leftBtn.addEventListener('mousedown', createTouchHandler('left', true));
+                leftBtn.addEventListener('mouseup', createTouchHandler('left', false));
+                
+                rightBtn.addEventListener('mousedown', createTouchHandler('right', true));
+                rightBtn.addEventListener('mouseup', createTouchHandler('right', false));
+                
+                fireBtn.addEventListener('mousedown', createTouchHandler('fire', true));
+                fireBtn.addEventListener('mouseup', createTouchHandler('fire', false));
+            }
+            
+            // Fungsi toggle pause
+            function togglePause() {
+                gamePaused = !gamePaused;
+                pauseButton.textContent = gamePaused ? 'Lanjutkan' : 'Jeda';
+                
+                if (!gamePaused) {
+                    startGameLoop();
+                }
+            }
+            
+            // Event listeners untuk tombol UI
+            startButton.addEventListener('click', () => {
+                if (!gameRunning) {
+                    restartGame();
+                    startButton.textContent = 'Mulai Ulang';
+                } else {
+                    restartGame();
+                }
+            });
+            
+            pauseButton.addEventListener('click', togglePause);
+            restartButton.addEventListener('click', restartGame);
+            
+            // Inisialisasi bintang
+            initStars();
+            
+            // Setup untuk kontrol mobile
+            setupMobileControls();
+            
+            // Gambar layar awal
+            function drawStartScreen() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#000033';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                drawStars();
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Space Impact', canvas.width / 2, canvas.height / 2 - 30);
+                
+                ctx.font = '16px Arial';
+                ctx.fillText('Tekan "Mulai Game" untuk bermain', canvas.width / 2, canvas.height / 2 + 10);
+                
+                ctx.font = '14px Arial';
+                ctx.fillText('Gunakan panah untuk bergerak, spasi untuk menembak', canvas.width / 2, canvas.height / 2 + 40);
+            }
+            
+            // Gambar layar awal
+            drawStartScreen();
+            
+            // Animasi bintang pada layar awal
+            function animateStars() {
+                if (!gameRunning) {
+                    updateStars();
+                    drawStartScreen();
+                    requestAnimationFrame(animateStars);
+                }
+            }
+            
+            animateStars();
+        });
+    </script>
+</body>
+</html>
